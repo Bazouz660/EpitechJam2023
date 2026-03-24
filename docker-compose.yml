@@ -1,0 +1,45 @@
+version: '3.8'
+
+# Note: This file works with both Docker and Podman
+# For Podman, use: podman-compose up
+# For Docker, use: docker-compose up
+
+services:
+  nerd-simulator-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nerd-simulator-build
+    volumes:
+      # Mount source code for hot-reloading (optional, for development)
+      - .:/project
+      # Mount build cache to speed up rebuilds
+      - build-cache:/project/build
+    environment:
+      CMAKE_BUILD_TYPE: Release
+    # Override default entrypoint for build-only (doesn't run the game)
+    entrypoint: /bin/bash
+    command: -c "cd /project/build && cmake .. && cmake --build ."
+    stdin_open: true
+    tty: true
+
+  nerd-simulator-run:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nerd-simulator-run
+    volumes:
+      - ./asset:/project/asset
+      - ./scores:/project/scores
+    environment:
+      DISPLAY: ${DISPLAY:-}
+    # For GUI support on Linux, expose X11 socket (commented for Windows/macOS)
+    # volumes:
+    #   - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # Linux only - uncomment to use GUI
+    # network_mode: host
+    depends_on:
+      - nerd-simulator-build
+
+volumes:
+  build-cache:

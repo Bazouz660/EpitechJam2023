@@ -1,0 +1,37 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    pkg-config \
+    mingw-w64 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+
+RUN git clone --depth 1 --branch 2.6.2 https://github.com/SFML/SFML.git sfml-src
+
+RUN cmake -S /tmp/sfml-src -B /tmp/sfml-build -G "Unix Makefiles" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_SYSTEM_NAME=Windows \
+    -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+    -DCMAKE_HOST_SYSTEM_NAME=Linux \
+    -DCMAKE_HOST_SYSTEM_PROCESSOR=x86_64 \
+    -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+    -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+    -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres \
+    -DBUILD_SHARED_LIBS=ON \
+    -DSFML_BUILD_EXAMPLES=OFF \
+    -DSFML_BUILD_DOC=OFF \
+    -DCMAKE_INSTALL_PREFIX=/opt/mingw-sfml \
+    && cmake --build /tmp/sfml-build \
+    && cmake --install /tmp/sfml-build \
+    && rm -rf /tmp/sfml-src /tmp/sfml-build
+
+WORKDIR /project
+
+CMD ["bash"]

@@ -82,7 +82,7 @@ namespace jam
     void ResourceManager::loadTexturesFromFolder(const std::string &directory)
     {
         for (const auto &entry : std::filesystem::directory_iterator(directory))
-            loadTexture(removeExtension(entry.path().filename()), entry.path().string());
+            loadTexture(removeExtension(entry.path().filename().string()), entry.path().string());
     }
 
     void ResourceManager::loadFont(const std::string &name,

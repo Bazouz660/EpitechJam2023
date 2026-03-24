@@ -6,18 +6,19 @@
 */
 
 #include "math.hpp"
+#include <numbers>
 
 namespace jam {
     namespace math {
 
         float toDeg(float rad)
         {
-            return rad * 180 / M_PI;
+            return rad * 180.0f / std::numbers::pi_v<float>;
         }
 
         float toRad(float deg)
         {
-            return deg * M_PI / 180;
+            return deg * std::numbers::pi_v<float> / 180.0f;
         }
 
         float dist(sf::Vector2f p1, sf::Vector2f p2)
